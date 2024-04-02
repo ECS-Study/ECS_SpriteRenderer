@@ -10,7 +10,7 @@ public partial class SpriteRenderSystem : SystemBase
 
     private readonly int HASH_MAIN_TEX = Shader.PropertyToID("_MainTex");
     private readonly int HASH_COLOR = Shader.PropertyToID("_Color");
-    private readonly int HASH_FLIP = Shader.PropertyToID("_Flip");
+    private readonly int HASH_MAIN_TEX_ST = Shader.PropertyToID("_MainTex_ST");
 
     protected override void OnUpdate()
     {
@@ -27,15 +27,13 @@ public partial class SpriteRenderSystem : SystemBase
 
             renderParams.matProps.SetTexture(HASH_MAIN_TEX, texture);
             renderParams.matProps.SetColor(HASH_COLOR, CastFloat4ToColor(renderer.ValueRO.color));
-            renderParams.matProps.SetVector(HASH_FLIP, new float4
-                (
-
+            renderParams.matProps.SetVector(HASH_MAIN_TEX_ST,
+                new float4(
                     renderer.ValueRO.flipX ? -1 : 1,
                     renderer.ValueRO.flipY ? -1 : 1,
-                    1,
-                    1
-
-                ));
+                    renderer.ValueRO.flipX ? 1 : 0,
+                    renderer.ValueRO.flipY ? 1 : 0
+                    ));
 
             Matrix4x4 matrix = Matrix4x4.TRS(
                 transform.ValueRO.Position - new float3(renderer.ValueRO.sprite.pivot, 0) * transform.ValueRO.Scale,
