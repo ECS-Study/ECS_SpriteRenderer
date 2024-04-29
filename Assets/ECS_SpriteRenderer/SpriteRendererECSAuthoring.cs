@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
@@ -23,6 +24,8 @@ public struct SpriteData
     public float2 scale;
     public float2 pivot;
 
+
+
 }
 
 public struct MaterialData
@@ -32,7 +35,7 @@ public struct MaterialData
 
 }
 
-public struct SpriteRendererECS : IComponentData
+public struct SpriteRendererECS : IComponentData, IEquatable<SpriteRendererECS>
 {
 
     public SpriteData sprite;
@@ -40,6 +43,15 @@ public struct SpriteRendererECS : IComponentData
     public float4 color;
     public bool flipX;
     public bool flipY;
+
+    public bool Equals(SpriteRendererECS other)
+    {
+
+        return other.sprite.spriteHash.Equals(sprite.spriteHash) 
+            && other.material.materialHash.Equals(material.materialHash)
+            && other.color.Equals(color);
+
+    }
 
 }
 

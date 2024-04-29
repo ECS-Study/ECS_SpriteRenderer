@@ -14,157 +14,8 @@ public class SpriteRendererManager
         spriteDataContainer = new();
         materialContainer = new();
         materialDataContainer = new();
-        handle = new(LockRecursionPolicy.SupportsRecursion);
 
-    }
-
-    private readonly ReaderWriterLockSlim handle;
-    private static SpriteRendererManager instance;
-    private Dictionary<int, Texture2D> textureContainer;
-    private Dictionary<int, Material> materialContainer;
-    private Dictionary<int, SpriteData> spriteDataContainer;
-    private Dictionary<int, MaterialData> materialDataContainer;
-
-    public static SpriteRendererManager Instance 
-    { 
-        get 
-        {
-
-            Init();
-            return instance;
-        
-        }
-    }
-
-    private static void Init()
-    {
-
-        if(instance == null)
-        {
-
-            instance = new SpriteRendererManager();
-
-        }
-
-    }
-
-    public SpriteData CreateSpriteData(Sprite sprite)
-    {
-
-        handle.EnterReadLock();
-
-        int hash = sprite.GetHashCode();
-
-        SpriteData data = new SpriteData();
-
-        if (!textureContainer.ContainsKey(hash))
-        {
-
-            data.spriteHash = hash;
-            data.scale = 
-                new float2
-                    (
-                    sprite.rect.width / sprite.pixelsPerUnit,
-                    sprite.rect.height / sprite.pixelsPerUnit
-                    );
-
-            data.pivot = sprite.pivot / sprite.pixelsPerUnit;
-
-            textureContainer.Add(hash, sprite.texture);
-            spriteDataContainer.Add(hash, data);
-
-        }
-        else
-        {
-
-            data = spriteDataContainer[hash];
-
-        }
-
-        handle.ExitReadLock();
-
-        return data;
-
-    }
-
-    public MaterialData CreateMaterialData(Material material)
-    {
-
-        handle.EnterReadLock();
-
-        int hash = material.GetHashCode();
-
-        MaterialData data = new MaterialData();
-
-        if (!materialContainer.ContainsKey(hash))
-        {
-
-            data.materialHash = hash;
-
-            materialContainer.Add(hash, material);
-            materialDataContainer.Add(hash, data);
-
-        }
-        else
-        {
-
-            data = materialDataContainer[hash];
-
-        }
-
-        handle.ExitReadLock();
-
-        return data;
-
-    }
-
-    public Texture2D GetTextureByHash(int hash)
-    {
-
-        handle.EnterReadLock();
-
-        Texture2D texture = null;
-
-        if (textureContainer.TryGetValue(hash, out var tex))
-        {
-
-            texture = tex;
-
-        }
-
-        handle.ExitReadLock();
-
-        return texture;
-
-    }
-
-    public Material GetMaterialByHash(int hash)
-    {
-
-        handle.EnterReadLock();
-
-        Material material = null;
-
-        if (materialContainer.TryGetValue(hash, out var mat))
-        {
-
-            material = mat;
-
-        }
-
-        handle.ExitReadLock();
-
-        return material;
-
-    }
-
-    public Mesh GetQurdMesh()
-    {
-
-
-        handle.EnterReadLock();
-
-        Mesh mesh = new Mesh();
+        mesh = new Mesh();
 
         Vector3[] vertices = new Vector3[4]
         {
@@ -202,7 +53,133 @@ public class SpriteRendererManager
         };
         mesh.uv = uv;
 
-        handle.ExitReadLock();
+    }
+
+    private static SpriteRendererManager instance;
+    private Dictionary<int, Texture2D> textureContainer;
+    private Dictionary<int, Material> materialContainer;
+    private Dictionary<int, SpriteData> spriteDataContainer;
+    private Dictionary<int, MaterialData> materialDataContainer;
+    private Mesh mesh;
+
+    public static SpriteRendererManager Instance 
+    { 
+        get 
+        {
+
+            Init();
+            return instance;
+        
+        }
+    }
+
+    private static void Init()
+    {
+
+        if(instance == null)
+        {
+
+            instance = new SpriteRendererManager();
+
+        }
+
+    }
+
+    public SpriteData CreateSpriteData(Sprite sprite)
+    {
+
+        int hash = sprite.GetHashCode();
+
+        SpriteData data = new SpriteData();
+
+        if (!textureContainer.ContainsKey(hash))
+        {
+
+            data.spriteHash = hash;
+            data.scale = 
+                new float2
+                    (
+                    sprite.rect.width / sprite.pixelsPerUnit,
+                    sprite.rect.height / sprite.pixelsPerUnit
+                    );
+
+            data.pivot = sprite.pivot / sprite.pixelsPerUnit;
+
+            textureContainer.Add(hash, sprite.texture);
+            spriteDataContainer.Add(hash, data);
+
+        }
+        else
+        {
+
+            data = spriteDataContainer[hash];
+
+        }
+
+        return data;
+
+    }
+
+    public MaterialData CreateMaterialData(Material material)
+    {
+
+        int hash = material.GetHashCode();
+
+        MaterialData data = new MaterialData();
+
+        if (!materialContainer.ContainsKey(hash))
+        {
+
+            data.materialHash = hash;
+
+            materialContainer.Add(hash, material);
+            materialDataContainer.Add(hash, data);
+
+        }
+        else
+        {
+
+            data = materialDataContainer[hash];
+
+        }
+
+        return data;
+
+    }
+
+    public Texture2D GetTextureByHash(int hash)
+    {
+
+        if (textureContainer.TryGetValue(hash, out var tex))
+        {
+
+            return tex;
+
+        }
+
+        return null;
+
+    }
+
+    public Material GetMaterialByHash(int hash)
+    {
+
+
+        if (materialContainer.TryGetValue(hash, out var mat))
+        {
+
+            return mat;
+
+        }
+
+
+        return null;
+
+    }
+
+    public Mesh GetQurdMesh()
+    {
+
 
         return mesh;
 
